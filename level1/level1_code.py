@@ -74,19 +74,19 @@ def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
 
     while any(order_and_capacity.values()):
         iteration += 1
-        path = ['r0']
-        total_dist = 0
+        path = ['r0']  # Start each path with 'r0'
         current_capacity = vehicle_capacity
+        visited = set()  # Keep track of visited nodes in the current path
 
-        while True:
+        while len(unvisited_nodes) > 1:  # While there are unvisited nodes (excluding 'r0')
             nearest_node = None
             min_distance = float('inf')
 
             for node in unvisited_nodes:
                 dist_to_node = node_and_distances[node][0]
-                dist_from_node = node_and_distances[node][1]
 
-                if dist_to_node < min_distance and order_and_capacity[node] > 0:
+                if (dist_to_node < min_distance and order_and_capacity[node] > 0
+                        and node != 'r0' and node not in visited):
                     nearest_node = node
                     min_distance = dist_to_node
 
@@ -97,21 +97,21 @@ def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
             if delivery_capacity <= 0:
                 break
 
-            if current_capacity >= delivery_capacity:
-                path.append(nearest_node)
-                total_dist += node_and_distances[nearest_node][0] + node_and_distances[nearest_node][1]
-                current_capacity -= delivery_capacity
-                order_and_capacity[nearest_node] -= delivery_capacity
+            path.append(nearest_node)
+            current_capacity -= delivery_capacity
+            order_and_capacity[nearest_node] -= delivery_capacity
+            visited.add(nearest_node)
+            unvisited_nodes.remove(nearest_node)
 
-                if order_and_capacity[nearest_node] <= 0:
-                    unvisited_nodes.remove(nearest_node)
-            else:
-                break
-
-        path.append('r0')
+        path.append('r0')  # End each path with 'r0'
         result[f"path{iteration}"] = path
 
+        if len(unvisited_nodes) == 1:  # If only 'r0' is left unvisited, end the iteration
+            break
+
     return result
+
+
 
 
 vehicle_capacity = vehicle_capacities["v0"]
