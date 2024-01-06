@@ -62,4 +62,10 @@ start_node = result_path[0]  # Assuming the starting node is the first node in t
 level0_output = {start_node: {"path": result_path}}
 
 print(f"The approximate shortest path is: {level0_output}")
+
+file_name = "level0_output.json"
+with open(file_name, "w") as file:
+    json.dump(level0_output, file)
+
+
 f.close()
