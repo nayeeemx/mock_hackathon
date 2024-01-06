@@ -26,7 +26,6 @@ def nearest_neighbor(graph):
     return path
 
 # Your graph dictionary
-
 import json
 
 # Opening JSON file
@@ -47,6 +46,10 @@ def item_generator(json_input, lookup_key):
 
 
 
+# Function to convert node numbers to their corresponding keys with "n" added
+
+
+
 output = {}
 n=0
 for i in item_generator(data, "distances"):
@@ -54,18 +57,21 @@ for i in item_generator(data, "distances"):
     ans = {d: i}
     output.update(ans)
     n+=1
-#print(output)
 
 # Find the path using the Nearest Neighbor Algorithm
 result_path = nearest_neighbor(output)
-start_node = result_path[0]  # Assuming the starting node is the first node in the path
+result_path = [f"n{num}" for num in result_path]
+
+start_node = "v0"  # Assuming the starting node is the first node in the path
 level0_output = {start_node: {"path": result_path}}
 
 print(f"The approximate shortest path is: {level0_output}")
 
 file_name = "level0_output.json"
+#json_string = json.dumps(level0_output, indent=2)
+
+
 with open(file_name, "w") as file:
     json.dump(level0_output, file)
-
 
 f.close()
