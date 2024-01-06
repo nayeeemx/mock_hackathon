@@ -100,10 +100,11 @@ def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
 
 vehicle_capacity = vehicle_capacities["v0"]
 print(vehicle_capacity)
-shortest_path_with_capacity_max=shortest_path(vehicle_capacity, node_and_distances, order_quantity_nodes)
+shortest_path_with_max_capacity={}
+shortest_path_with_max_capacity["v0"]=shortest_path(vehicle_capacity, node_and_distances, order_quantity_nodes)
 
 
 with open("level1a_output.json", "w") as outfile: 
-    json.dump(shortest_path_with_capacity_max, outfile)
+    json.dump(shortest_path_with_max_capacity, outfile)
 
 f.close()
