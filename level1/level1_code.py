@@ -68,35 +68,51 @@ for i in item_generator(data, "capacity"):
 from queue import PriorityQueue
 
 def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
-    total_nodes = len(node_and_distances)
-    total_order = sum(order_and_capacity.values())
     unvisited_nodes = list(node_and_distances.keys())
-    total_dist = {node: 0 for node in unvisited_nodes}
     result = {}
     iteration = 0
 
-    while total_order >= vehicle_capacity:
+    while any(order_and_capacity.values()):
         iteration += 1
-        path = [None] * (2 * len(unvisited_nodes) + 1)
-        path[0] = 'r0'
-        index = 1
-        priority_queue = PriorityQueue()
-        for node in unvisited_nodes:
-            priority_queue.put((total_dist[node], node))
+        path = ['r0']
+        total_dist = 0
+        current_capacity = vehicle_capacity
 
-        while not priority_queue.empty():
-            dist, node = priority_queue.get()
-            delivery_capacity = min(vehicle_capacity, order_and_capacity[node])
-            path[index] = node
-            index += 2
-            total_dist[node] += node_and_distances[node][0] + node_and_distances[node][1]
-            order_and_capacity[node] -= delivery_capacity
-            if order_and_capacity[node] == 0:
-                unvisited_nodes.remove(node)
-        result[f"path{iteration}"] = list(filter(None, path))
-        total_order -= vehicle_capacity
+        while True:
+            nearest_node = None
+            min_distance = float('inf')
+
+            for node in unvisited_nodes:
+                dist_to_node = node_and_distances[node][0]
+                dist_from_node = node_and_distances[node][1]
+
+                if dist_to_node < min_distance and order_and_capacity[node] > 0:
+                    nearest_node = node
+                    min_distance = dist_to_node
+
+            if nearest_node is None:
+                break
+
+            delivery_capacity = min(current_capacity, order_and_capacity[nearest_node])
+            if delivery_capacity <= 0:
+                break
+
+            if current_capacity >= delivery_capacity:
+                path.append(nearest_node)
+                total_dist += node_and_distances[nearest_node][0] + node_and_distances[nearest_node][1]
+                current_capacity -= delivery_capacity
+                order_and_capacity[nearest_node] -= delivery_capacity
+
+                if order_and_capacity[nearest_node] <= 0:
+                    unvisited_nodes.remove(nearest_node)
+            else:
+                break
+
+        path.append('r0')
+        result[f"path{iteration}"] = path
 
     return result
+
 
 vehicle_capacity = vehicle_capacities["v0"]
 print(vehicle_capacity)
