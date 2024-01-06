@@ -54,78 +54,53 @@ for i in item_generator(data, "order_quantity"):
 print(order_quantity_nodes)
 
 #vehicles and their capacity
-vehicle_capacity={}
+vehicle_capacities={}
 r=0
 for i in item_generator(data, "capacity"):
-    d="r"+str(r)
+    d="v"+str(r)
     ans = {d: i}
-    vehicle_capacity.update(ans)
+    vehicle_capacities.update(ans)
     r+=1
-print(vehicle_capacity)
+print(vehicle_capacities)
 
 
 #finding the path
+from queue import PriorityQueue
+
+def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
+    total_nodes = len(node_and_distances)
+    total_order = sum(order_and_capacity.values())
+    unvisited_nodes = list(node_and_distances.keys())
+    total_dist = {node: 0 for node in unvisited_nodes}
+    result = {}
+    iteration = 0
+
+    for i in range(total_order // vehicle_capacity):
+        iteration += 1
+        path = [None] * (2 * len(unvisited_nodes) + 1)
+        path[0] = 'r0'
+        index = 1
+        priority_queue = PriorityQueue()
+        for node in unvisited_nodes:
+            priority_queue.put((total_dist[node], node))
+
+        while not priority_queue.empty():
+            dist, node = priority_queue.get()
+            delivery_capacity = min(vehicle_capacity, order_and_capacity[node])
+            path[index] = node
+            path[index + 1] = delivery_capacity
+            index += 2
+            total_dist[node] += node_and_distances[node][0] + node_and_distances[node][1]
+            order_and_capacity[node] -= delivery_capacity
+            if order_and_capacity[node] == 0:
+                unvisited_nodes.remove(node)
+        path[-1] = 'r0'
+        result[iteration] = path
+
+    return result
 
 
-
-
-
-def find_nearest_neighbor(node, unvisited_nodes, distances):
-    min_distance = float('inf')
-    nearest_node = None
-    
-    for neighbor in unvisited_nodes:
-        if distances[node][neighbor] < min_distance:
-            min_distance = distances[node][neighbor]
-            nearest_node = neighbor
-            
-    return nearest_node
-
-def find_next_node(current_node, unvisited_nodes, distances, vehicle_capacity, current_capacity):
-    nearest_neighbor = find_nearest_neighbor(current_node, unvisited_nodes, distances)
-    if nearest_neighbor is None:
-        return 'r0'
-    
-    if current_capacity + neighbors_capacity[nearest_neighbor] <= vehicle_capacity:
-        return nearest_neighbor
-    else:
-        return 'r0'
-
-def visit_all_nodes(distances, neighbors_capacity, vehicle_capacity):
-    unvisited_nodes = set(distances.keys())
-    unvisited_nodes.remove('r0')
-    current_node = 'r0'
-    current_capacity = 0
-    path = ['r0']
-    
-    while unvisited_nodes:
-        next_node = find_next_node(current_node, unvisited_nodes, distances, vehicle_capacity, current_capacity)
-        
-        if next_node == 'r0':
-            path.append('r0')
-            current_capacity = 0
-        else:
-            path.append(next_node)
-            unvisited_nodes.remove(next_node)
-            current_capacity += neighbors_capacity[next_node]
-            
-        current_node = next_node
-    
-    path.append('r0')
-    return path
-
-
-
-
-
-
-path = visit_all_nodes(node_and_distances, order_quantity_nodes, vehicle_capacity)
-print("Path:", path)
-
-
-
-
-
-
+vehicle_capacity = vehicle_capacities["v0"]
+print(shortest_path(vehicle_capacity, node_and_distances, order_quantity_nodes))
 
 f.close()
