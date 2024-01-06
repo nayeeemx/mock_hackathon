@@ -35,7 +35,7 @@ for i in item_generator(data, "distances"):
     ans = {d: i}
     node_and_distances.update(ans)
     n+=1
-print(node_and_distances)
+#print(node_and_distances)
 
 #restaurants and their capacity
 order_quantity_nodes={}
@@ -51,7 +51,7 @@ for i in item_generator(data, "order_quantity"):
     ans = {d: i}
     order_quantity_nodes.update(ans)
     n+=1
-print(order_quantity_nodes)
+#print(order_quantity_nodes)
 
 #vehicles and their capacity
 vehicle_capacities={}
@@ -61,7 +61,7 @@ for i in item_generator(data, "capacity"):
     ans = {d: i}
     vehicle_capacities.update(ans)
     r+=1
-print(vehicle_capacities)
+#print(vehicle_capacities)
 
 
 #finding the path
@@ -75,7 +75,7 @@ def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
     result = {}
     iteration = 0
 
-    for i in range(total_order // vehicle_capacity):
+    while total_order >= vehicle_capacity:
         iteration += 1
         path = [None] * (2 * len(unvisited_nodes) + 1)
         path[0] = 'r0'
@@ -88,19 +88,22 @@ def shortest_path(vehicle_capacity, node_and_distances, order_and_capacity):
             dist, node = priority_queue.get()
             delivery_capacity = min(vehicle_capacity, order_and_capacity[node])
             path[index] = node
-            path[index + 1] = delivery_capacity
             index += 2
             total_dist[node] += node_and_distances[node][0] + node_and_distances[node][1]
             order_and_capacity[node] -= delivery_capacity
             if order_and_capacity[node] == 0:
                 unvisited_nodes.remove(node)
-        path[-1] = 'r0'
-        result[iteration] = path
+        result[f"path{iteration}"] = list(filter(None, path))
+        total_order -= vehicle_capacity
 
     return result
 
-
 vehicle_capacity = vehicle_capacities["v0"]
-print(shortest_path(vehicle_capacity, node_and_distances, order_quantity_nodes))
+print(vehicle_capacity)
+shortest_path_with_capacity_max=shortest_path(vehicle_capacity, node_and_distances, order_quantity_nodes)
+
+
+with open("level1a_output.json", "w") as outfile: 
+    json.dump(shortest_path_with_capacity_max, outfile)
 
 f.close()
